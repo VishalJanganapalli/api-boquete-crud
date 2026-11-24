@@ -1,0 +1,173 @@
+BOUQUET CRUD API - ENDPOINTS, PAYLOADS & REQUIRED FIELDS
+========================================================
+Base URL (local):  http://localhost:3000
+Base URL (Render): https://YOUR-RENDER-SERVICE.onrender.com
+
+The API uses the separate MongoDB database "bouquets_db" and the
+"bouquets" collection. MongoDB creates the database and collection when
+the API first writes data. On first startup, the API inserts 20 starter
+bouquets only when the collection is empty. Restarting the API will not
+duplicate or overwrite existing data. The existing products database
+is not changed.
+
+--------------------------------------------------------
+1. HEALTH CHECK AND SUMMARY
+--------------------------------------------------------
+GET /api/health
+GET /api/bouquets/meta/summary
+
+Health returns the API and MongoDB connection status.
+Summary returns totalBouquets, category names, and unitsAvailable.
+
+--------------------------------------------------------
+2. GET ALL BOUQUETS / FILTER
+--------------------------------------------------------
+GET /api/bouquets
+Header: Accept: application/json
+Body: none
+
+All matching bouquets are returned directly; there is no pagination.
+
+Supported query filters:
+?search=rose
+?category=Roses
+?occasion=Birthday
+?color=Pink
+?size=Large
+?minPrice=20&maxPrice=80
+?inStock=true
+?stockStatus=IN_STOCK
+?stockStatus=LOW_STOCK
+?stockStatus=OUT_OF_STOCK
+?tags=romantic,roses
+?isFeatured=true
+?isNewArrival=true
+?isOnSale=true
+?hasFreeDelivery=true
+?sortBy=price&order=asc
+
+sortBy supports: price, name, createdAt, stockQuantity
+order supports: asc, desc
+IN_STOCK means more than 5 items; LOW_STOCK means 1 to 5;
+OUT_OF_STOCK means 0. Filters can be combined.
+
+Examples:
+GET /api/bouquets?category=Roses&minPrice=30&isFeatured=true
+GET /api/bouquets?search=spring&inStock=true&sortBy=price&order=asc
+
+--------------------------------------------------------
+3. GET ONE BOUQUET
+--------------------------------------------------------
+GET /api/bouquets/:id
+Example: GET /api/bouquets/665123456789012345678901
+Header: Accept: application/json
+Body: none
+
+--------------------------------------------------------
+4. CREATE A BOUQUET
+--------------------------------------------------------
+POST /api/bouquets
+Header: Content-Type: application/json
+
+Required fields:
+  name          String
+  sku           String (unique)
+  description   String
+  price         Number greater than 0
+  category      String
+  flowers       Array of at least one flower name
+  color         String
+  size          Small, Medium, Large, or Premium
+  stockQuantity Integer, 0 or greater
+  thumbnail     String (image URL)
+
+Example minimal payload:
+{
+  "name": "Spring Rose Bouquet",
+  "sku": "BQT-021",
+  "description": "Fresh pink roses with seasonal greenery.",
+  "price": 45.99,
+  "category": "Roses",
+  "flowers": ["Pink Rose", "Eucalyptus"],
+  "color": "Pink",
+  "size": "Medium",
+  "stockQuantity": 12,
+  "thumbnail": "https://example.com/spring-rose.jpg"
+}
+
+Optional fields:
+  shortDescription (String, default "")
+  compareAtPrice (Number or null, default null)
+  discountPercentage (calculated automatically when compareAtPrice > price)
+  occasion (String, default "")
+  images (Array of strings, default [])
+  tags (Array of strings, default [])
+  isFeatured (Boolean, default false)
+  isNewArrival (Boolean, default false)
+  isOnSale (Boolean; automatically true when compareAtPrice > price)
+  hasFreeDelivery (Boolean, default false)
+  status (active, draft, archived; default active)
+  createdAt and updatedAt (automatically managed)
+
+--------------------------------------------------------
+5. REPLACE A BOUQUET (PUT)
+--------------------------------------------------------
+PUT /api/bouquets/:id
+Header: Content-Type: application/json
+
+PUT replaces the bouquet. Send all required fields. Optional fields not
+sent are replaced with their defaults.
+
+--------------------------------------------------------
+6. PARTIALLY UPDATE A BOUQUET (PATCH)
+--------------------------------------------------------
+PATCH /api/bouquets/:id
+Header: Content-Type: application/json
+
+Send only fields to change. Example:
+{
+  "price": 39.99,
+  "isFeatured": true,
+  "stockQuantity": 8
+}
+
+--------------------------------------------------------
+7. DELETE A BOUQUET
+--------------------------------------------------------
+DELETE /api/bouquets/:id
+Header: Accept: application/json
+Body: none
+
+--------------------------------------------------------
+ERROR RESPONSES
+--------------------------------------------------------
+400 Bad Request: invalid ID, invalid query, or validation failure
+404 Not Found: bouquet or route does not exist
+409 Conflict: SKU is already in use
+500 Internal Server Error: unexpected server error
+
+--------------------------------------------------------
+RUN LOCALLY
+--------------------------------------------------------
+1. Install Node.js 20 or newer and MongoDB Atlas (or local MongoDB).
+2. Run: npm install
+3. Copy .env.example to .env and set MONGODB_URI to your MongoDB Atlas
+   connection string. MONGODB_DB_NAME defaults to bouquets_db.
+4. Run: npm start
+5. Open: http://localhost:3000/api/bouquets
+
+Never commit your .env file or share your MongoDB connection string.
+
+--------------------------------------------------------
+DEPLOY TO RENDER
+--------------------------------------------------------
+1. Push this project to a GitHub repository.
+2. In Render, choose New > Blueprint and select the repository, or create
+   a Web Service with build command "npm install" and start command
+   "npm start".
+3. Add the environment variable MONGODB_URI in Render using the MongoDB
+   Atlas connection string. MONGODB_DB_NAME is set to bouquets_db by
+   render.yaml. Do not put credentials in source code.
+4. Deploy. The health check is /api/health.
+5. Replace the Render base URL at the top of this document with the
+   service URL and share this document with students.
