@@ -1,7 +1,7 @@
 BOUQUET CRUD API - ENDPOINTS, PAYLOADS & REQUIRED FIELDS
 ========================================================
 Base URL (local):  http://localhost:3000
-Base URL (Render): https://YOUR-RENDER-SERVICE.onrender.com
+Base URL (Render): https://api-boquete-crud.onrender.com
 
 The API uses the separate MongoDB database "bouquets_db" and the
 "bouquets" collection. MongoDB creates the database and collection when
@@ -118,6 +118,8 @@ Header: Content-Type: application/json
 PUT replaces the bouquet. Send all required fields. Optional fields not
 sent are replaced with their defaults.
 
+Send the complete required payload (same as CREATE API)
+
 --------------------------------------------------------
 6. PARTIALLY UPDATE A BOUQUET (PATCH)
 --------------------------------------------------------
@@ -138,36 +140,63 @@ DELETE /api/bouquets/:id
 Header: Accept: application/json
 Body: none
 
---------------------------------------------------------
-ERROR RESPONSES
---------------------------------------------------------
-400 Bad Request: invalid ID, invalid query, or validation failure
-404 Not Found: bouquet or route does not exist
-409 Conflict: SKU is already in use
-500 Internal Server Error: unexpected server error
 
---------------------------------------------------------
-RUN LOCALLY
---------------------------------------------------------
-1. Install Node.js 20 or newer and MongoDB Atlas (or local MongoDB).
-2. Run: npm install
-3. Copy .env.example to .env and set MONGODB_URI to your MongoDB Atlas
-   connection string. MONGODB_DB_NAME defaults to bouquets_db.
-4. Run: npm start
-5. Open: http://localhost:3000/api/bouquets
 
-Never commit your .env file or share your MongoDB connection string.
 
---------------------------------------------------------
-DEPLOY TO RENDER
---------------------------------------------------------
-1. Push this project to a GitHub repository.
-2. In Render, choose New > Blueprint and select the repository, or create
-   a Web Service with build command "npm install" and start command
-   "npm start".
-3. Add the environment variable MONGODB_URI in Render using the MongoDB
-   Atlas connection string. MONGODB_DB_NAME is set to bouquets_db by
-   render.yaml. Do not put credentials in source code.
-4. Deploy. The health check is /api/health.
-5. Replace the Render base URL at the top of this document with the
-   service URL and share this document with students.
+=======================================
+STUDENT PRACTICE QUESTIONS
+=======================================
+
+Use the Bouquet API base URL at the top of this document. Build a page
+that displays bouquets as cards. Each card should show the bouquet name,
+price, image, category, and stock status.
+
+1. DISPLAY ALL BOUQUETS
+   Which GET request returns all bouquets? Display the returned items in
+   a responsive card grid. Use images[0] when available, otherwise use
+   thumbnail.
+
+2. COMBINE FILTERS
+   Can you combine search, category, and price filters in one request?
+   Add a "Clear filters" button that removes all selected filters and
+   fetches the full list again.
+
+3. SORT RESULTS
+   Add a sort selector for price (low to high and high to low), name, or
+   stock quantity. Which sortBy and order values does the API accept?
+
+4. CONDITIONAL PRODUCT CHIPS
+   Use conditional statements to show the following chips on each card:
+   - If isFeatured is true, show "Featured".
+   - If isNewArrival is true, show "New".
+   - If isOnSale is true, show "Sale".
+   - If hasFreeDelivery is true, show "Free Delivery".
+   - If stockQuantity is 0, show "Out of Stock".
+   - If stockQuantity is from 1 to 5, show "Low Stock".
+   - If stockQuantity is greater than 5, show "In Stock".
+   What should the card look like when a bouquet has several chips?
+
+5. CONDITIONAL PRICE DISPLAY
+   If compareAtPrice is greater than price, show compareAtPrice with a
+   strike-through, show the current price, and display discountPercentage.
+   Otherwise, show only the current price.
+
+6. CONDITIONAL ACTIONS
+   Should the "Add to Cart" button be enabled when stockQuantity is 0?
+   Implement the button state using a condition and display an
+   appropriate message to the customer.
+
+7. LOADING, EMPTY, AND ERROR STATES
+    What should the page show while the GET request is loading? What
+    should it show when no bouquets match the filters? How should it
+    report an API or network error, and how can the student retry?
+
+8. CREATE AND EDIT
+    Create a form that sends POST /api/bouquets. Which fields are
+    required? Then add an edit form that sends PUT with all required
+    fields, and a quick-update control that sends PATCH with only the
+    changed field(s). Show validation errors from the API.
+
+9. DELETE
+    Add a delete button that sends DELETE /api/bouquets/:id. Ask for
+    confirmation before deleting, show the result, and refresh the list.

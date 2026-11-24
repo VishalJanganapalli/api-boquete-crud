@@ -99,7 +99,7 @@ const bouquets = [
     color: "Pink",
     size: "Medium",
     stockQuantity: 20,
-    thumbnail: "https://images.unsplash.com/photo-1529257414772-1960b7bea4f1?w=600",
+    thumbnail: "https://images.unsplash.com/photo-1520763185298-1b434c919102?w=600",
     tags: ["tulip", "spring", "pink"]
   },
   {
@@ -128,7 +128,7 @@ const bouquets = [
     color: "White",
     size: "Premium",
     stockQuantity: 5,
-    thumbnail: "https://images.unsplash.com/photo-1566907225472-514a8c9f7a7b?w=600",
+    thumbnail: "https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=600",
     tags: ["orchid", "premium", "serene"]
   },
   {
@@ -287,10 +287,13 @@ const bouquets = [
     color: "Mixed",
     size: "Large",
     stockQuantity: 0,
-    thumbnail: "https://images.unsplash.com/photo-1529257414772-1960b7bea4f1?w=600",
+    thumbnail: "https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=600",
     tags: ["spring", "basket", "seasonal"],
     hasFreeDelivery: true
   }
 ];
 
-module.exports = bouquets;
+module.exports = bouquets.map((bouquet) => ({
+  ...bouquet,
+  images: [bouquet.thumbnail.replace("w=600", "w=1200")]
+}));
